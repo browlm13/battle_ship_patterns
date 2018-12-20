@@ -381,7 +381,7 @@ def ship_arrangment_minimum_requirment(ships, board_dims, target_mean, confidenc
 			#
 
 			print("\n\BOARD FOUND:\n")
-			display_board(min_board)
+			display_board(ships, min_board)
 
 			return min_board, min_mean, min_std
 
@@ -515,9 +515,11 @@ if __name__ == "__main__":
 
 	ships = create_ships(ship_sizes=SHIP_SIZES)
 
+
 	#
 	# find fire pattern by criteria
 	#
+
 	TARGET_MEAN = len(SHIP_SIZES)
 	CONFIDENCE = 0.975
 	MAX_ITS = 100000
@@ -537,10 +539,33 @@ if __name__ == "__main__":
 	print(fire_pattern)
 	display_fire_pattern(fire_pattern, BOARD_DIMS)
 
+
+	#
+	# find board arrangment by criteria
+	#
+
+	TARGET_MEAN = 0
+	CONFIDENCE = 0.975
+	MAX_ITS = 10
+	NUM_SHOTS = 24
+	SAMPLE_SIZE = 40
+
+	board, mean, std = ship_arrangment_minimum_requirment(ships, BOARD_DIMS, TARGET_MEAN, confidence=CONFIDENCE, max_its=MAX_ITS, num_trials=SAMPLE_SIZE, num_shots=NUM_SHOTS )
+	
+	print("\n%s enemy shots to hit %s distinct ships on board arrangment." % (NUM_SHOTS, mean))
+	
+	print("\n confidence: ", CONFIDENCE)
+	print("\n mean: ", mean)
+	print("\n std: ", std)
+
+	print("\n\BOARD:\n")
+	
+	display_board(ships, board)
+
+
 	#
 	# Generate Fire Pattern Search
 	#
 
 	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
-
 

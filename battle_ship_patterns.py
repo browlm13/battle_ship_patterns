@@ -3,6 +3,7 @@
 
 	Battle Ship 
 
+
 """
 
 # internal
@@ -263,9 +264,9 @@ def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence
 
 			print("\n\n %s +- %s" % (max_mean, interval_size))
 			print("confidence: ", confidence)
+			print("std: ", max_std)
 			print("diff: ", max_diff)
-			print("range: ", max_range)
-			print(" std: ", max_std)
+			print("stretch: ", max_range)
 
 		if diff <= interval_size:
 
@@ -273,9 +274,9 @@ def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence
 
 			print("\n\n %s +- %s" % (max_mean, interval_size))
 			print("confidence: ", confidence)
+			print("std: ", max_std)
 			print("diff: ", max_diff)
-			print("range: ", max_range)
-			print(" std: ", max_std)
+			print("stretch: ", max_range)
 
 
 			#
@@ -421,23 +422,24 @@ if __name__ == "__main__":
 
 	ships = create_ships(ship_sizes=SHIP_SIZES)
 
-
 	#
 	# find fire pattern by criteria
 	#
-	TARGET_MEAN = len(SHIP_SIZES) - 0.5
-	CONFIDENCE = 0.75
-	MAX_ITS = 20
-	NUM_SHOTS = 20
-	NUM_TESTS = 75
+	TARGET_MEAN = len(SHIP_SIZES)
+	CONFIDENCE = 0.95
+	MAX_ITS = 50000
+	NUM_SHOTS = 15
+	NUM_TESTS = 30
 
 	fire_pattern, mean, std = fire_pattern_minimum_requirement( ships, BOARD_DIMS, TARGET_MEAN, confidence=CONFIDENCE, max_its=MAX_ITS, num_trials=NUM_TESTS, num_shots=NUM_SHOTS )
 
+	print("\n%s shots to hit %s distinct enemy ships." % (NUM_SHOTS, TARGET_MEAN))
+	
 	print("\n confidence: ", CONFIDENCE)
 	print("\n mean: ", mean)
 	print("\n std: ", std)
 
-	print("\n\nBEST PATTERN:\n")
+	print("\n\nPATTERN:\n")
 	
 	print(fire_pattern)
 	display_fire_pattern(fire_pattern, BOARD_DIMS)
@@ -446,7 +448,5 @@ if __name__ == "__main__":
 	# Generate Fire Pattern Search
 	#
 
-	#fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
-
-
+	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
 

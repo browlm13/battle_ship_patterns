@@ -3,6 +3,15 @@
 
 	Battle Ship 
 
+
+
+	TODO:
+
+		- Find pattern and minimum shots needed to hit all ships once within one standard deviation
+			- eventually the pattern should have a time sequence associated with it
+
+
+		- Find best ship arrangment against random patterns
 """
 
 # internal
@@ -350,7 +359,7 @@ def ship_arrangment_minimum_requirment(ships, board_dims, target_mean, confidenc
 		trial_slack = mean - abs(interval_size)
 
 		#if max_diff > diff:
-		if max_range <= trial_range:
+		if min_slack >= trial_slack:
 			min_board = board
 			min_mean = mean
 			min_std = std
@@ -515,7 +524,7 @@ if __name__ == "__main__":
 
 	ships = create_ships(ship_sizes=SHIP_SIZES)
 
-
+	"""
 	#
 	# find fire pattern by criteria
 	#
@@ -538,7 +547,7 @@ if __name__ == "__main__":
 	
 	print(fire_pattern)
 	display_fire_pattern(fire_pattern, BOARD_DIMS)
-
+	"""
 
 	#
 	# find board arrangment by criteria
@@ -567,5 +576,7 @@ if __name__ == "__main__":
 	# Generate Fire Pattern Search
 	#
 
-	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
+	#fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
+
+
 

@@ -68,7 +68,7 @@ def rand_placement(ship, board_slice):
 	#
 
 	# first choose random endpoint indices
-	cap = -ship['size'] + 1
+	cap = -ship['size'] #+ 1
 	assert ship['size'] > 1
 	x_start, y_start = np.random.choice(x[:cap]), np.random.choice(y[:cap])
 	x_end, y_end = x_start + ship['size'], y_start + ship['size']
@@ -238,29 +238,28 @@ def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top
 
 
 	#
-	# Display Combined Pattern Map with Weights based on rank
-	#
-
-	weights = np.linspace(1,keep_top, keep_top)
-	weighted_patterns = top_fire_patterns * weights[:,np.newaxis,np.newaxis]
-	weighted_heat_map = np.add.reduce(weighted_patterns, 0)
-
-	print("\n\nWEIGHTED HEAT MAP:\n")
-	print(weighted_heat_map)
-
-	plt.imshow(weighted_heat_map, cmap='hot', interpolation='nearest')
-	plt.show()
-
-	#
 	# Display Non weighted Heat Map
 	#
 
-	weights = np.ones(shape=(keep_top,))
-	weighted_patterns = top_fire_patterns * weights[:,np.newaxis,np.newaxis]
-	heat_map = np.add.reduce(weighted_patterns, 0)
+	heat_map = np.add.reduce(top_fire_patterns, 0)
 
 	print("\n\nHEAT MAP:\n")
 	print(heat_map)
+
+	plt.imshow(heat_map, cmap='hot')
+	plt.show()
+
+	#
+	# Display Combined Pattern Map with Weights based on rank
+	#
+
+	weights = np.logspace(2,5, keep_top)
+	weighted_patterns = top_fire_patterns * weights[:,np.newaxis,np.newaxis]
+	weighted_heat_map = np.add.reduce(weighted_patterns, 0)
+	weighted_heat_map *= 100/weighted_heat_map.max()
+
+	print("\n\nWEIGHTED HEAT MAP:\n")
+	print(weighted_heat_map)
 
 	plt.imshow(weighted_heat_map, cmap='hot', interpolation='nearest')
 	plt.show()
@@ -272,7 +271,7 @@ def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top
 	print("\n\nTOP PATTERN:\n")
 	print(top_fire_patterns[-1])
 
-	plt.imshow(top_fire_patterns[-1], cmap='hot')
+	plt.imshow(top_fire_patterns[-1], cmap='hot', alpha=0.8)
 	plt.show()
 
 if __name__ == "__main__":
@@ -292,16 +291,16 @@ if __name__ == "__main__":
 	BOARD_DIMS = (10,10)
 
 	# fire pattern size
-	NUM_SHOTS = 25
+	NUM_SHOTS = 10
 
 	# fire pattern search space
-	NUM_FIRE_PATTERNS = 5000
+	NUM_FIRE_PATTERNS = 1000
 
 	# number of trials per pattern
-	NUM_TRIALS = 5000
+	NUM_TRIALS = 24
 
 	# number of top patterns to keep
-	TOP = 50
+	TOP = 10
 
 	#
 	# Create Ships
@@ -314,5 +313,4 @@ if __name__ == "__main__":
 	#
 
 	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP  )
-
 

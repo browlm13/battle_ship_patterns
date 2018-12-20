@@ -223,6 +223,7 @@ def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence
 	max_mean = 0.0
 	max_std = 0.0
 	max_diff = np.inf
+	max_range = 0.0
 
 	for i in tqdm(range(max_its)):
 
@@ -237,19 +238,23 @@ def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence
 		#scipy.stats.norm(mean=mean, std=std)
 		interval_size = abs(z*std/np.sqrt(num_trials))
 		diff = target_mean - mean
+		trial_range = mean + abs(interval_size)
 
-		if max_diff > diff:
+		#if max_diff > diff:
+		if max_range <= trial_range:
 			max_fire_pattern = fire_pattern
 			max_mean = mean
 			max_std = std
 			max_diff = diff
+			max_range = trial_range
 
-		print("\n\n %s += %s" % (max_mean, interval_size))
-		print("diff: ", max_diff)
-		print(" std: ", max_std)
+			print("\n\n %s +- %s" % (max_mean, interval_size))
+			print("diff: ", max_diff)
+			print("range: ", max_range)
+			print(" std: ", max_std)
 
 		if diff <= interval_size:
-			print(" %s += %s" % (max_mean, interval_size))
+			print(" %s +- %s" % (max_mean, interval_size))
 			return max_fire_pattern, max_mean, max_std
 
 	print("failure to find pattern given criteria")
@@ -386,9 +391,9 @@ if __name__ == "__main__":
 	# find fire pattern by criteria
 	#
 	TARGET_MEAN = len(SHIP_SIZES)
-	CONFIDENCE = 0.75
+	CONFIDENCE = 0.64
 	MAX_ITS = 1000
-	NUM_SHOTS = 30
+	NUM_SHOTS = 50
 	NUM_TESTS = 75
 
 	fire_pattern, mean, std = fire_pattern_minimum_requirement( ships, BOARD_DIMS, TARGET_MEAN, confidence=CONFIDENCE, max_its=MAX_ITS, num_trials=NUM_TESTS, num_shots=NUM_SHOTS )

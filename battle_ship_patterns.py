@@ -1,11 +1,17 @@
-"""
-
-	Battle Ship
 
 """
 
+	Battle Ship 
+
+"""
+
+# internal
 import random
+
+# external
 import numpy as np
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 def create_ships( ship_sizes ):
 
@@ -82,6 +88,20 @@ def rand_placement(ship, board_slice):
 
 	values = np.ones(shape=(ship['size'],))
 	board_slice[x_coors, y_coors] = values
+
+	#
+	# probabilities screw to left side...
+	#
+
+	# randomly take the transpose (***new)
+	if random.random() < 0.5:
+		board_slice = board_slice.T
+
+	# randomly flip board (***new) 
+	if random.random() < 0.5:
+		board_slice = np.flip(board_slice, axis=0)
+	if random.random() < 0.5:
+		board_slice = np.flip(board_slice, axis=1)
 
 	# return board slice
 	return board_slice
@@ -163,6 +183,7 @@ def fire_pattern_stats( ships, board_dims, fire_pattern, num_trials ):
 
 		# create random board
 		board = random_board(ships, board_dims)
+		#display_board(ships, board)
 
 		# get number of distinct hits
 		ship_hits = ships_hit_by_fire_pattern(board, fire_pattern)
@@ -179,8 +200,7 @@ def fire_pattern_stats( ships, board_dims, fire_pattern, num_trials ):
 	# return stats
 	return mean_hits, std_hits
 
-from tqdm import tqdm
-import matplotlib.pyplot as plt
+
 def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top=5 ):
 
 	top_fire_patterns = np.zeros(shape=(keep_top, *board_dims))
@@ -291,16 +311,16 @@ if __name__ == "__main__":
 	BOARD_DIMS = (10,10)
 
 	# fire pattern size
-	NUM_SHOTS = 10
+	NUM_SHOTS = 4
 
 	# fire pattern search space
-	NUM_FIRE_PATTERNS = 1000
+	NUM_FIRE_PATTERNS = 2500
 
 	# number of trials per pattern
-	NUM_TRIALS = 24
+	NUM_TRIALS = 75
 
 	# number of top patterns to keep
-	TOP = 10
+	TOP = 25
 
 	#
 	# Create Ships

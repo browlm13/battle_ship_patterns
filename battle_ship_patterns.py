@@ -3,6 +3,15 @@
 
 	Battle Ship 
 
+
+
+	TODO:
+
+		- Find pattern and minimum shots needed to hit all ships once within one standard deviation
+			- eventually the pattern should have a time sequence associated with it
+
+
+
 """
 
 # internal
@@ -201,7 +210,52 @@ def fire_pattern_stats( ships, board_dims, fire_pattern, num_trials ):
 	return mean_hits, std_hits
 
 
-def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top=5 ):
+from scipy import stats
+def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence=0.95, max_its=1000, num_trials=24, num_shots=20 ):
+	""" Find a pattern that has the target mean with provided confidence interval, 
+		return first fire pattern to meet this requirement. """
+
+
+	z = stats.norm.ppf(confidence)
+
+	# max
+	max_fire_pattern = random_fire_pattern(board_dims, num_shots)
+	max_mean = 0.0
+	max_std = 0.0
+	max_diff = np.inf
+
+	for i in tqdm(range(max_its)):
+
+		# generate random fire pattern
+		fire_pattern = random_fire_pattern(board_dims, num_shots)
+
+		# run trials
+		mean, std = fire_pattern_stats(ships, BOARD_DIMS, fire_pattern, num_trials=num_trials)
+
+		
+		# check if criteria is met
+		#scipy.stats.norm(mean=mean, std=std)
+		interval_size = abs(z*std/np.sqrt(num_trials))
+		diff = target_mean - mean
+
+		if max_diff > diff:
+			max_fire_pattern = fire_pattern
+			max_mean = mean
+			max_std = std
+			max_diff = diff
+
+		print("\n\n %s += %s" % (max_mean, interval_size))
+		print("diff: ", max_diff)
+		print(" std: ", max_std)
+
+		if diff <= interval_size:
+			print(" %s += %s" % (max_mean, interval_size))
+			return max_fire_pattern, max_mean, max_std
+
+	print("failure to find pattern given criteria")
+	return max_fire_pattern, max_mean, max_std
+
+def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top=5, num_shots=20 ):
 
 	top_fire_patterns = np.zeros(shape=(keep_top, *board_dims))
 	top_fire_pattern_means = np.zeros(shape=(keep_top,))
@@ -210,10 +264,10 @@ def fire_pattern_search( ships, board_dims, max_its=100, num_trials=24, keep_top
 	for i in tqdm(range(max_its)):
 
 		# generate random fire pattern
-		fire_pattern = random_fire_pattern(BOARD_DIMS, NUM_SHOTS)
+		fire_pattern = random_fire_pattern(board_dims, num_shots)
 
 		# run trials
-		mean, std = fire_pattern_stats(ships, BOARD_DIMS, fire_pattern, num_trials=24)
+		mean, std = fire_pattern_stats(ships, board_dims, fire_pattern, num_trials=num_trials)
 
 		# update tops
 		if np.min(top_fire_pattern_means) <= mean:
@@ -311,16 +365,16 @@ if __name__ == "__main__":
 	BOARD_DIMS = (10,10)
 
 	# fire pattern size
-	NUM_SHOTS = 4
+	NUM_SHOTS = 71
 
 	# fire pattern search space
-	NUM_FIRE_PATTERNS = 2500
+	NUM_FIRE_PATTERNS = 10000
 
 	# number of trials per pattern
-	NUM_TRIALS = 75
+	NUM_TRIALS = 175
 
 	# number of top patterns to keep
-	TOP = 25
+	TOP = 45
 
 	#
 	# Create Ships
@@ -329,8 +383,26 @@ if __name__ == "__main__":
 	ships = create_ships(ship_sizes=SHIP_SIZES)
 
 	#
+	# find fire pattern by criteria
+	#
+	TARGET_MEAN = len(SHIP_SIZES)
+	CONFIDENCE = 0.75
+	MAX_ITS = 1000
+	NUM_SHOTS = 30
+	NUM_TESTS = 75
+
+	fire_pattern, mean, std = fire_pattern_minimum_requirement( ships, BOARD_DIMS, TARGET_MEAN, confidence=CONFIDENCE, max_its=MAX_ITS, num_trials=NUM_TESTS, num_shots=NUM_SHOTS )
+
+	print("Fire pattern found that meets criteia")
+	print(fire_pattern)
+	print("\n mean: ", mean)
+	print("\n std: ", std)
+
+	#
 	# Generate Fire Pattern Search
 	#
 
-	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP  )
+	#fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
+
+
 

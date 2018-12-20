@@ -3,15 +3,6 @@
 
 	Battle Ship 
 
-
-
-	TODO:
-
-		- Find pattern and minimum shots needed to hit all ships once within one standard deviation
-			- eventually the pattern should have a time sequence associated with it
-
-
-
 """
 
 # internal
@@ -209,6 +200,28 @@ def fire_pattern_stats( ships, board_dims, fire_pattern, num_trials ):
 	# return stats
 	return mean_hits, std_hits
 
+from matplotlib import colors
+def display_fire_pattern( fire_pattern, board_dims ):
+
+	data = fire_pattern*100
+
+	# create discrete colormap
+	cmap = colors.ListedColormap(['blue', 'red'])
+
+	bounds = [0, 1, 100]
+	norm = colors.BoundaryNorm(bounds, cmap.N)
+
+	fig, ax = plt.subplots()
+	ax.imshow(data, cmap=cmap) #, norm=norm)
+
+	# draw gridlines
+	ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=1)
+
+	ax.set_xticks(np.arange(-0.5, board_dims[0], 1));
+	ax.set_yticks(np.arange(-0.5, board_dims[1], 1));
+
+	plt.show()
+
 
 from scipy import stats
 def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence=0.95, max_its=1000, num_trials=24, num_shots=20 ):
@@ -259,6 +272,7 @@ def fire_pattern_minimum_requirement( ships, board_dims, target_mean, confidence
 			print("\n\nFOUND.")
 
 			print("\n\n %s +- %s" % (max_mean, interval_size))
+			print("confidence: ", confidence)
 			print("diff: ", max_diff)
 			print("range: ", max_range)
 			print(" std: ", max_std)
@@ -413,7 +427,7 @@ if __name__ == "__main__":
 	#
 	TARGET_MEAN = len(SHIP_SIZES) - 0.5
 	CONFIDENCE = 0.75
-	MAX_ITS = 5000
+	MAX_ITS = 20
 	NUM_SHOTS = 20
 	NUM_TESTS = 75
 
@@ -424,15 +438,15 @@ if __name__ == "__main__":
 	print("\n std: ", std)
 
 	print("\n\nBEST PATTERN:\n")
+	
 	print(fire_pattern)
-
-	plt.imshow(fire_pattern, cmap='hot', alpha=0.8)
-	plt.show()
-
+	display_fire_pattern(fire_pattern, BOARD_DIMS)
 
 	#
 	# Generate Fire Pattern Search
 	#
 
-	fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
+	#fire_pattern_search( ships, BOARD_DIMS, max_its=NUM_FIRE_PATTERNS, num_trials=NUM_TRIALS, keep_top=TOP, num_shots=NUM_SHOTS  )
+
+
 
